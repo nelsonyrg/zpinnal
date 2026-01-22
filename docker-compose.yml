@@ -21,7 +21,7 @@ services:
       - /app/.pytest_cache
     environment:
       - DEBUG=true
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/app_db
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/zpinnaldb
       - REDIS_URL=redis://redis:6379/0
     depends_on:
       db:
@@ -78,7 +78,7 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=app_db
+      - POSTGRES_DB=zpinnaldb
     networks:
       - app-network
     healthcheck:

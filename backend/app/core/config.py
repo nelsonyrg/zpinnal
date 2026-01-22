@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
 
     # Base de datos
-    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@db:5432/app_db"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:postgres@db:5432/zpinnaldb"
     DATABASE_ECHO: bool = False
 
     # Redis (cache/sesiones)

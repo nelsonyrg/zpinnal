@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
 const config: CapacitorConfig = {
-  appId: 'com.example.mobileapp',
-  appName: 'Mobile App',
+  appId: 'com.zpinnal.front',
+  appName: 'Zpinnal',
   webDir: 'dist',
   server: {
     // En desarrollo, usar servidor local

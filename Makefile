@@ -52,7 +52,7 @@ shell-frontend: ## Abrir shell en el frontend
 	$(DOCKER_COMPOSE) exec frontend sh
 
 shell-db: ## Abrir shell de PostgreSQL
-	$(DOCKER_COMPOSE) exec db psql -U postgres -d app_db
+	$(DOCKER_COMPOSE) exec db psql -U postgres -d zpinnaldb
 
 # ----------------
 # Testing
