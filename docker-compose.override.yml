@@ -1,0 +1,32 @@
+# Docker Compose Override para desarrollo
+# Este archivo se carga automáticamente junto con docker-compose.yml
+# Configuraciones específicas para desarrollo local
+
+services:
+  backend:
+    # En desarrollo: mostrar logs detallados
+    environment:
+      - DEBUG=true
+      - DATABASE_ECHO=true
+      - LOG_LEVEL=DEBUG
+    # Comando con auto-reload más agresivo
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --reload-dir /app/app
+      --log-level debug
+
+  frontend:
+    environment:
+      - VITE_DEBUG=true
+    # Habilitar HMR de Vite
+    command: pnpm dev --host 0.0.0.0 --port 5173
+
+  db:
+    # En desarrollo: logging de queries
+    command: >
+      postgres
+      -c log_statement=all
+      -c log_destination=stderr

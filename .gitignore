@@ -1,0 +1,122 @@
+# ================================================
+# GITIGNORE - Proyecto Vue.js/Capacitor + FastAPI
+# ================================================
+
+# ----------------
+# Entorno
+# ----------------
+.env
+.env.local
+.env.*.local
+*.local
+
+# ----------------
+# Python / Backend
+# ----------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+.ruff_cache/
+
+# Virtualenv
+venv/
+ENV/
+.venv/
+
+# ----------------
+# Node.js / Frontend
+# ----------------
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Build outputs
+frontend/dist/
+frontend/dist-ssr/
+*.local
+
+# ----------------
+# Capacitor / Mobile
+# ----------------
+frontend/android/
+frontend/ios/
+!frontend/android/.gitkeep
+!frontend/ios/.gitkeep
+
+# ----------------
+# IDE / Editores
+# ----------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-workspace
+*.sublime-project
+
+# ----------------
+# OS
+# ----------------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ----------------
+# Docker
+# ----------------
+# No ignorar los Dockerfiles, solo datos locales
+
+# ----------------
+# Logs
+# ----------------
+*.log
+logs/
+
+# ----------------
+# Testing
+# ----------------
+coverage/
+.nyc_output/
+test-results/
+
+# ----------------
+# Temporal
+# ----------------
+tmp/
+temp/
+*.tmp
+*.bak

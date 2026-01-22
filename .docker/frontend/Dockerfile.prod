@@ -1,0 +1,28 @@
+# Frontend Vue.js - Dockerfile de Producción (Build estático)
+FROM node:20-slim as builder
+
+ENV PNPM_HOME="/pnpm" \
+    PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable
+
+WORKDIR /app
+
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile
+
+COPY . .
+RUN pnpm build
+
+# Imagen final con Nginx
+FROM nginx:alpine
+
+# Copiar configuración personalizada de Nginx
+COPY .docker/frontend/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Copiar archivos estáticos construidos
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,113 @@
+# Docker Compose para Producción
+# Uso: docker-compose -f docker-compose.prod.yml up -d
+
+services:
+  # ============================================
+  # BACKEND - FastAPI (Producción)
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../.docker/backend/Dockerfile.prod
+    container_name: app-backend-prod
+    restart: always
+    expose:
+      - "8000"
+    environment:
+      - DEBUG=false
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - SECRET_KEY=${SECRET_KEY}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+  # ============================================
+  # FRONTEND - Nginx + Static files (Producción)
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../.docker/frontend/Dockerfile.prod
+    container_name: app-frontend-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 128M
+
+  # ============================================
+  # BASE DE DATOS - PostgreSQL (Producción)
+  # ============================================
+  db:
+    image: postgres:16-alpine
+    container_name: app-db-prod
+    restart: always
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+
+  # ============================================
+  # CACHE - Redis (Producción)
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: app-redis-prod
+    restart: always
+    volumes:
+      - redis_data_prod:/data
+    networks:
+      - app-network
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+
+volumes:
+  postgres_data_prod:
+    driver: local
+  redis_data_prod:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

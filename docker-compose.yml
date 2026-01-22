@@ -1,0 +1,160 @@
+# Docker Compose para desarrollo local
+# Uso: docker-compose up -d
+
+services:
+  # ============================================
+  # BACKEND - FastAPI
+  # ============================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../.docker/backend/Dockerfile
+    container_name: app-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Montar código para hot-reload
+      - ./backend:/app
+      # Excluir directorios que no necesitan sincronización
+      - /app/__pycache__
+      - /app/.pytest_cache
+    environment:
+      - DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/app_db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ============================================
+  # FRONTEND - Vue.js + Capacitor
+  # ============================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../.docker/frontend/Dockerfile
+    container_name: app-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      # Montar código para hot-reload
+      - ./frontend:/app
+      # Usar node_modules del contenedor (no del host)
+      - frontend_node_modules:/app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=/api/v1
+    depends_on:
+      - backend
+    networks:
+      - app-network
+    stdin_open: true
+    tty: true
+
+  # ============================================
+  # BASE DE DATOS - PostgreSQL
+  # ============================================
+  db:
+    image: postgres:16-alpine
+    container_name: app-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=app_db
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # CACHE - Redis
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: app-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    command: redis-server --appendonly yes
+
+  # ============================================
+  # ADMIN DB - pgAdmin (opcional)
+  # ============================================
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: app-pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=admin
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - db
+    networks:
+      - app-network
+    profiles:
+      - tools
+
+  # ============================================
+  # MAILHOG - Testing de emails (opcional)
+  # ============================================
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: app-mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web UI
+    networks:
+      - app-network
+    profiles:
+      - tools
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+  frontend_node_modules:
+    driver: local
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  app-network:
+    driver: bridge
