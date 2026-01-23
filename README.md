@@ -114,7 +114,50 @@ zpinnal/
 
 ## Comandos de Desarrollo
 
-### Usando Make (recomendado)
+### Windows (PowerShell) - Recomendado
+
+El proyecto incluye un script PowerShell con todos los comandos necesarios:
+
+```powershell
+# Ver ayuda con todos los comandos disponibles
+.\scripts\dev.ps1 help
+```
+
+#### Comandos disponibles:
+
+| Categoría | Comando | Descripción |
+|-----------|---------|-------------|
+| **Desarrollo** | `.\scripts\dev.ps1 start` | Iniciar ambiente de desarrollo |
+| | `.\scripts\dev.ps1 stop` | Detener todos los contenedores |
+| | `.\scripts\dev.ps1 restart` | Reiniciar todos los servicios |
+| | `.\scripts\dev.ps1 build` | Reconstruir imágenes |
+| | `.\scripts\dev.ps1 logs` | Ver logs de todos los servicios |
+| | `.\scripts\dev.ps1 logs-backend` | Ver logs del backend |
+| | `.\scripts\dev.ps1 logs-frontend` | Ver logs del frontend |
+| | `.\scripts\dev.ps1 shell-backend` | Abrir shell en el backend |
+| | `.\scripts\dev.ps1 shell-frontend` | Abrir shell en el frontend |
+| | `.\scripts\dev.ps1 shell-db` | Abrir shell de PostgreSQL |
+| **Testing** | `.\scripts\dev.ps1 test` | Ejecutar todos los tests |
+| | `.\scripts\dev.ps1 test-backend` | Tests del backend |
+| | `.\scripts\dev.ps1 test-backend-cov` | Tests backend con coverage |
+| | `.\scripts\dev.ps1 test-frontend` | Tests del frontend |
+| | `.\scripts\dev.ps1 test-frontend-cov` | Tests frontend con coverage |
+| **Linting** | `.\scripts\dev.ps1 lint` | Ejecutar linters |
+| | `.\scripts\dev.ps1 format` | Formatear código |
+| **Base de datos** | `.\scripts\dev.ps1 db-migrate "mensaje"` | Crear migración Alembic |
+| | `.\scripts\dev.ps1 db-upgrade` | Aplicar migraciones |
+| | `.\scripts\dev.ps1 db-downgrade` | Revertir última migración |
+| | `.\scripts\dev.ps1 db-reset` | Resetear base de datos |
+| **Capacitor** | `.\scripts\dev.ps1 cap-sync` | Sincronizar Capacitor |
+| | `.\scripts\dev.ps1 cap-android` | Abrir proyecto Android |
+| | `.\scripts\dev.ps1 cap-ios` | Abrir proyecto iOS |
+| **Producción** | `.\scripts\dev.ps1 prod-build` | Construir para producción |
+| | `.\scripts\dev.ps1 prod-start` | Iniciar en modo producción |
+| | `.\scripts\dev.ps1 prod-stop` | Detener producción |
+| **Limpieza** | `.\scripts\dev.ps1 clean` | Limpiar contenedores y volúmenes |
+| | `.\scripts\dev.ps1 clean-all` | Limpieza completa (incluye imágenes) |
+
+### Linux/Mac (Make)
 
 ```bash
 make help           # Ver todos los comandos disponibles
@@ -127,7 +170,7 @@ make shell-backend  # Shell en backend
 make shell-frontend # Shell en frontend
 ```
 
-### Usando Docker Compose
+### Usando Docker Compose directamente
 
 ```bash
 # Iniciar servicios

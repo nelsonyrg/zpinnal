@@ -39,6 +39,48 @@ CREATE TRIGGER update_users_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
+-- ================================================
+-- Tabla de Categorías
+-- ================================================
+CREATE TABLE IF NOT EXISTS categorias (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    descripcion TEXT,
+    icono VARCHAR(700),
+    activo BOOLEAN DEFAULT true NOT NULL,
+    categoria_padre_id INTEGER REFERENCES categorias(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índices para categorias
+CREATE INDEX IF NOT EXISTS idx_categorias_nombre ON categorias(nombre);
+CREATE INDEX IF NOT EXISTS idx_categorias_padre ON categorias(categoria_padre_id);
+CREATE INDEX IF NOT EXISTS idx_categorias_activo ON categorias(activo);
+
+-- Trigger para categorias
+DROP TRIGGER IF EXISTS update_categorias_updated_at ON categorias;
+CREATE TRIGGER update_categorias_updated_at
+    BEFORE UPDATE ON categorias
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Categorías de ejemplo
+INSERT INTO categorias (nombre, descripcion, activo) VALUES
+    ('Electrónica', 'Productos electrónicos y tecnología', true),
+    ('Ropa', 'Vestimenta y accesorios', true),
+    ('Hogar', 'Artículos para el hogar', true)
+ON CONFLICT DO NOTHING;
+
+-- Subcategorías de ejemplo
+INSERT INTO categorias (nombre, descripcion, activo, categoria_padre_id)
+SELECT 'Smartphones', 'Teléfonos inteligentes', true, id FROM categorias WHERE nombre = 'Electrónica'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO categorias (nombre, descripcion, activo, categoria_padre_id)
+SELECT 'Laptops', 'Computadoras portátiles', true, id FROM categorias WHERE nombre = 'Electrónica'
+ON CONFLICT DO NOTHING;
+
 -- Usuario de prueba (password: testpassword123)
 -- Hash generado con bcrypt
 INSERT INTO users (email, username, hashed_password, is_active, is_superuser)
