@@ -81,6 +81,64 @@ INSERT INTO categorias (nombre, descripcion, activo, categoria_padre_id)
 SELECT 'Laptops', 'Computadoras portátiles', true, id FROM categorias WHERE nombre = 'Electrónica'
 ON CONFLICT DO NOTHING;
 
+-- ================================================
+-- Tabla de Servicios
+-- ================================================
+CREATE TABLE IF NOT EXISTS servicios (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(300) NOT NULL,
+    descripcion TEXT,
+    activo BOOLEAN DEFAULT true NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Índices para servicios
+CREATE INDEX IF NOT EXISTS idx_servicios_nombre ON servicios(nombre);
+CREATE INDEX IF NOT EXISTS idx_servicios_activo ON servicios(activo);
+
+-- Trigger para servicios
+DROP TRIGGER IF EXISTS update_servicios_updated_at ON servicios;
+CREATE TRIGGER update_servicios_updated_at
+    BEFORE UPDATE ON servicios
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- ================================================
+-- Tabla intermedia N:N Servicio <-> Categoria
+-- ================================================
+CREATE TABLE IF NOT EXISTS servicio_categorias (
+    servicio_id INTEGER REFERENCES servicios(id) ON DELETE CASCADE,
+    categoria_id INTEGER REFERENCES categorias(id) ON DELETE CASCADE,
+    PRIMARY KEY (servicio_id, categoria_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_sc_servicio ON servicio_categorias(servicio_id);
+CREATE INDEX IF NOT EXISTS idx_sc_categoria ON servicio_categorias(categoria_id);
+
+-- Servicios de ejemplo
+INSERT INTO servicios (nombre, descripcion, activo) VALUES
+    ('Reparación de pantalla', 'Servicio de reparación de pantallas para smartphones y tablets', true),
+    ('Mantenimiento de laptop', 'Limpieza, actualización de software y hardware', true),
+    ('Asesoría de imagen', 'Consultoría personalizada de estilo y vestimenta', true)
+ON CONFLICT DO NOTHING;
+
+-- Asignar categorías a servicios
+INSERT INTO servicio_categorias (servicio_id, categoria_id)
+SELECT s.id, c.id FROM servicios s, categorias c
+WHERE s.nombre = 'Reparación de pantalla' AND c.nombre IN ('Electrónica', 'Smartphones')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO servicio_categorias (servicio_id, categoria_id)
+SELECT s.id, c.id FROM servicios s, categorias c
+WHERE s.nombre = 'Mantenimiento de laptop' AND c.nombre IN ('Electrónica', 'Laptops')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO servicio_categorias (servicio_id, categoria_id)
+SELECT s.id, c.id FROM servicios s, categorias c
+WHERE s.nombre = 'Asesoría de imagen' AND c.nombre = 'Ropa'
+ON CONFLICT DO NOTHING;
+
 -- Usuario de prueba (password: testpassword123)
 -- Hash generado con bcrypt
 INSERT INTO users (email, username, hashed_password, is_active, is_superuser)

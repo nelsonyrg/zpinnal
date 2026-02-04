@@ -7,6 +7,13 @@ from app.schemas.categoria import (
     CategoriaSimple,
     CategoriaTree,
 )
+from app.schemas.servicio import (
+    ServicioBase,
+    ServicioCreate,
+    ServicioUpdate,
+    ServicioResponse,
+    ServicioSimple,
+)
 
 __all__ = [
     "CategoriaBase",
@@ -15,4 +22,9 @@ __all__ = [
     "CategoriaResponse",
     "CategoriaSimple",
     "CategoriaTree",
+    "ServicioBase",
+    "ServicioCreate",
+    "ServicioUpdate",
+    "ServicioResponse",
+    "ServicioSimple",
 ]
